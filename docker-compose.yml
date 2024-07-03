@@ -1,0 +1,52 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+version: '3'
+
+#Define services
+services:
+
+  #PostgreSQL Database for the application
+  doctor-postgres:
+    image: "postgres:13.4"
+    container_name: doctor-postgres
+    #Volume mounted for database for the storage
+    volumes:
+      - doctor-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432 # Forward the exposed port 5432 on the container to port 5432 on the host machine
+
+    #Environment variable for DB name, user and password
+    environment:
+      - POSTGRES_DB=doctor
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=8&pj@GSN4q!1z7&22L2SfBKbb@n@
+
+  #Back-end Spring Boot Application
+  doctor-api:
+    #The docker file in scrum-app build the jar and provides the docker image with the following name.
+    image: "alankaiko/doormed-doctor-api"
+    container_name: doctor-api
+
+    #Environment variables for Spring Boot Application.
+    environment:
+      - DB_SERVER=doctor-postgres
+      - POSTGRES_DB=doctor
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=8&pj@GSN4q!1z7&22L2SfBKbb@n@
+      - SPRING_PROFILES_ACTIVE=prod,oauth-security
+    ports:
+      - 8080:8080 # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    links:
+      - doctor-postgres
+
+  #Fron-end Angular Application
+  doctor-ui:
+    image: "alankaiko/doormed-doctor-ui"
+    container_name: doctor-ui
+    ports:
+      - 443:443
+    links:
+      - doctor-api
+
+#Volumes for DB data
+volumes:
+  doctor-data:
